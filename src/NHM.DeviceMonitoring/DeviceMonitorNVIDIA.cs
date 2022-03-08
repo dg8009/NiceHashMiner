@@ -4,10 +4,11 @@ using NHM.DeviceMonitoring.TDP;
 using System;
 using System.Linq;
 using System.Threading;
+using static NHM.DeviceMonitoring.NVIDIA.NVIDIA_MON;
 
 namespace NHM.DeviceMonitoring
 {
-    internal class DeviceMonitorNVIDIA : DeviceMonitor, IFanSpeedRPM, IGetFanSpeedPercentage, ILoad, IPowerUsage, ITemp, ITDP
+    internal class DeviceMonitorNVIDIA : DeviceMonitor, IFanSpeedRPM, IGetFanSpeedPercentage, ILoad, IPowerUsage, ITemp, ITDP, IMiningProfile
     {
         public static object _lock = new object();
 
@@ -226,5 +227,11 @@ namespace NHM.DeviceMonitoring
         }
 
         #endregion ITDP
+
+        public bool SetMiningProfile(int dmc, int dcc, int mmc, int mcc, string mt)
+        {
+            int ok = NVIDIA_MON.nhm_nvidia_device_set_profile(BusID, dmc, dcc, mmc, mcc, mt);
+            return ok == 0;
+        }
     }
 }

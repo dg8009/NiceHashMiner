@@ -8,6 +8,7 @@ using NHMCore.ApplicationState;
 using NHMCore.Configs;
 using NHMCore.Configs.Data;
 using NHMCore.Nhmws;
+using NHMCore.Utils;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -47,6 +48,8 @@ namespace NHMCore.Mining
                 OnPropertyChanged();
             }
         }
+
+        private readonly int[] ExistingProfiles = { 1, 2, 3, 4, 11, 12, 101 };
 
         // disabled state check
         public bool IsDisabled => (!Enabled || State == DeviceState.Disabled);
@@ -501,5 +504,23 @@ namespace NHMCore.Mining
         }
 
         #endregion Checker
+
+        public bool TrySetProfile(int profileNum)
+        {
+            if (!ExistingProfiles.Contains(profileNum)) return false;
+            if(GPUProfileManager.GetProfileForSelectedGPUIfExists(Name, profileNum, out var prof) && DeviceMonitor is IMiningProfile mp)
+            {
+                var mtString = "";
+                if (prof.mt != null) 
+                    prof.mt.ForEach(mtOpt =>
+                    {
+                        if (mtOpt.Count == 2) mtString += mtOpt[0] + "=" + mtOpt[1] + " ";
+                    });
+                mtString.Trim();
+                mtString = mtString.Replace(" ", ";");
+                mp.SetMiningProfile(prof.dmc, prof.dcc, prof.mmc, prof.mcc, mtString);
+            }
+            return false;
+        }
     }
 }

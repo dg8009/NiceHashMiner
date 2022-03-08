@@ -91,6 +91,7 @@ namespace NHMCore
                     AvailableNotifications.CreateMotherboardNotCompatible();
                 }
                 OutsideProcessMonitor.Init(ExitApplication.Token);
+                GPUProfileManager.Init();
                 // add devices
                 var detectionResult = DeviceDetection.DetectionResult;
                 var index = 0;
