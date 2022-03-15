@@ -413,6 +413,8 @@ If NOT exist "$(SolutionDir)$(Configuration)\app\common\vcruntime140.dll" copy /
 
 If NOT exist "$(SolutionDir)$(Configuration)\app\device_monitoring_amd.dll" copy /Y "$(SolutionDir)\pre_compiled_libs\device_monitoring_x64\device_monitoring_amd.dll" "$(SolutionDir)$(Configuration)\app\device_monitoring_amd.dll"
 If NOT exist "$(SolutionDir)$(Configuration)\app\device_monitoring_nvidia.dll" copy /Y "$(SolutionDir)\pre_compiled_libs\device_monitoring_x64\device_monitoring_nvidia.dll" "$(SolutionDir)$(Configuration)\app\device_monitoring_nvidia.dll"
+If NOT exist "$(SolutionDir)$(Configuration)\app\IOMap64.sys" copy /Y "$(SolutionDir)\pre_compiled_libs\device_monitoring_x64\IOMap64.sys" "$(SolutionDir)$(Configuration)\app\IOMap64.sys"
+If NOT exist "$(SolutionDir)$(Configuration)\app\EIO" copy /Y "$(SolutionDir)\pre_compiled_libs\device_monitoring_x64\EIO.dll" "$(SolutionDir)$(Configuration)\app\EIO.dll"
 
 If NOT exist "$(SolutionDir)$(Configuration)\app\GPUprofiles.json" copy /Y "$(SolutionDir)\Resources\GPUprofiles.json" "$(SolutionDir)$(Configuration)\app\GPUprofiles.json"</PostBuildEvent>
   </PropertyGroup>

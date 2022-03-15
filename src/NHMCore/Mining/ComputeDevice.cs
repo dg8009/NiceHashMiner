@@ -505,7 +505,7 @@ namespace NHMCore.Mining
 
         #endregion Checker
 
-        public bool TrySetProfile(int profileNum)
+        public bool TrySetProfile(int profileNum)//todo other values not only mt
         {
             if (!ExistingProfiles.Contains(profileNum)) return false;
             if(GPUProfileManager.GetProfileForSelectedGPUIfExists(Name, profileNum, out var prof) && DeviceMonitor is IMiningProfile mp)
@@ -518,7 +518,7 @@ namespace NHMCore.Mining
                     });
                 mtString.Trim();
                 mtString = mtString.Replace(" ", ";");
-                mp.SetMiningProfile(prof.dmc, prof.dcc, prof.mmc, prof.mcc, mtString);
+                return mp.SetMiningProfile(prof.dmc, prof.dcc, prof.mmc, prof.mcc, mtString);
             }
             return false;
         }

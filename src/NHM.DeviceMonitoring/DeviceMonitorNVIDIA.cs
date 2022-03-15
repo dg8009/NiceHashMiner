@@ -2,8 +2,10 @@
 using NHM.DeviceMonitoring.NVIDIA;
 using NHM.DeviceMonitoring.TDP;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using static NHM.DeviceMonitoring.NVIDIA.NVIDIA_MON;
 
 namespace NHM.DeviceMonitoring
@@ -20,6 +22,7 @@ namespace NHM.DeviceMonitoring
         private static Timer DriverAliveCheckTimer;
         private static int FailCounter = 0;
         private static int CurrentTimeout = 10000;
+        private static readonly int NDEF = Int32.MinValue;
 
         internal DeviceMonitorNVIDIA(string uuid, int busID)
         {
@@ -228,10 +231,57 @@ namespace NHM.DeviceMonitoring
 
         #endregion ITDP
 
-        public bool SetMiningProfile(int dmc, int dcc, int mmc, int mcc, string mt)
+        public bool SetMiningProfile(int dmc, int dcc, int mmc, int mcc, string mt)//todo profile better reseting
         {
-            int ok = NVIDIA_MON.nhm_nvidia_device_set_profile(BusID, dmc, dcc, mmc, mcc, mt);
-            return ok == 0;
+            int currentMC = -1;
+            int currentCC = -1;
+            List<Action> toRevert = new List<Action>();
+            bool failed = false;
+            if(dmc != NDEF)
+            {
+                var okGetMC = NVIDIA_MON.nhm_nvidia_device_get_memory_clocks(BusID, ref currentMC);
+                var okSetMC = NVIDIA_MON.nhm_nvidia_device_set_memory_clocks_delta(BusID, dmc);
+                if (okSetMC == 0 && okGetMC == 0) toRevert.Add(() => NVIDIA_MON.nhm_nvidia_device_set_memory_clocks_delta(BusID, currentMC));
+                else failed = true;
+            }
+            else if(mmc != NDEF)
+            {
+                var okGetMC = NVIDIA_MON.nhm_nvidia_device_get_memory_clocks(BusID, ref currentMC);
+                if (okGetMC == 0)
+                {
+                    var delta = mmc - currentMC;
+                    var okSetMC = NVIDIA_MON.nhm_nvidia_device_set_memory_clocks_delta(BusID, delta);
+                    if (okSetMC == 0) toRevert.Add(() => NVIDIA_MON.nhm_nvidia_device_set_memory_clocks_delta(BusID, -delta));
+                    else failed = true;
+                }
+                else failed = true;
+            }
+            if(dcc != NDEF && !failed)
+            {
+                var okGetCC = NVIDIA_MON.nhm_nvidia_device_get_core_clocks(BusID, ref currentCC);
+                var okSetCC = NVIDIA_MON.nhm_nvidia_device_set_core_clocks_delta(BusID, dcc);
+                if (okSetCC == 0 && okSetCC == 0) toRevert.Add(() => NVIDIA_MON.nhm_nvidia_device_set_core_clocks(BusID, -dcc));
+                else failed = true;
+            }
+            else if(mcc != NDEF && !failed)
+            {
+                var okGetCC = NVIDIA_MON.nhm_nvidia_device_get_core_clocks(BusID, ref currentCC);
+                var okSetCC = NVIDIA_MON.nhm_nvidia_device_set_core_clocks(BusID, mcc);
+                if (okSetCC == 0 && okGetCC == 0) toRevert.Add(() => NVIDIA_MON.nhm_nvidia_device_set_core_clocks(BusID, currentCC));
+                else failed = true;
+            }
+            if (mt.Any() && !failed)
+            {
+                var okSetMT = NVIDIA_MON.nhm_nvidia_device_set_memory_timings(BusID, mt);
+                if (okSetMT >= 0) toRevert.Add(() => NVIDIA_MON.nhm_nvidia_device_reset_memory_timings(BusID));
+                else failed = true;
+            }
+            if (toRevert.Any() || failed)
+            {
+                Parallel.Invoke(toRevert.ToArray());
+                return false;
+            }
+            return true;
         }
     }
 }

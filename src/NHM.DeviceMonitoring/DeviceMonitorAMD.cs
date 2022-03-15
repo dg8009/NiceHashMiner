@@ -2,16 +2,20 @@
 using NHM.DeviceMonitoring.AMD;
 using NHM.DeviceMonitoring.TDP;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace NHM.DeviceMonitoring
 {
-    internal class DeviceMonitorAMD : DeviceMonitor, IFanSpeedRPM, IGetFanSpeedPercentage, ILoad, IPowerUsage, ITemp, ITDP
+    internal class DeviceMonitorAMD : DeviceMonitor, IFanSpeedRPM, IGetFanSpeedPercentage, ILoad, IPowerUsage, ITemp, ITDP, IMiningProfile
     {
         public int BusID { get; private set; }
 
         private static readonly TimeSpan _delayedLogging = TimeSpan.FromMinutes(0.5);
 
         private string LogTag => $"DeviceMonitorAMD-uuid({UUID})-busid({BusID})";
+        private static readonly int NDEF = Int32.MinValue;
 
         internal DeviceMonitorAMD(string uuid, int busID)
         {
@@ -208,5 +212,39 @@ namespace NHM.DeviceMonitoring
             return execRet;
         }
         #endregion ITDP
+
+        public bool SetMiningProfile(int dmc, int dcc, int mmc, int mcc, string mt)//todo unused args in amd...
+        {
+            int currentMC = -1;
+            int currentCC = -1;
+            List<Action> toRevert = new List<Action>();
+            bool failed = false;
+            if (mmc != NDEF)
+            {
+                var okGetMC = AMD_ODN.nhm_amd_device_get_memory_clocks(BusID, ref currentMC);
+                var okSetMC = AMD_ODN.nhm_amd_device_set_memory_clocks(BusID, mmc);
+                if (okSetMC == 0 && okGetMC == 0) toRevert.Add(() => AMD_ODN.nhm_amd_device_set_memory_clocks(BusID, currentMC));
+                else failed = true;
+            }
+            if (mcc != NDEF && !failed)
+            {
+                var okGetCC = AMD_ODN.nhm_amd_device_get_core_clocks(BusID, ref currentCC);
+                var okSetCC = AMD_ODN.nhm_amd_device_set_core_clocks(BusID, mmc);
+                if (okSetCC == 0 && okSetCC == 0) toRevert.Add(() => AMD_ODN.nhm_amd_device_set_core_clocks(BusID, currentCC));
+                else failed = true;
+            }
+            if (mt.Any() && !failed)
+            {
+                var okSetMT = AMD_ODN.nhm_nvidia_device_set_memory_timings(BusID, mt);
+                if (okSetMT >= 0) toRevert.Add(() => AMD_ODN.nhm_nvidia_device_reset_memory_timings(BusID));
+                else failed = true;
+            }
+            if (toRevert.Any() || failed)
+            {
+                Parallel.Invoke(toRevert.ToArray());
+                return false;
+            }
+            return true;
+        }
     }
 }

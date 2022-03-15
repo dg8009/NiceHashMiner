@@ -55,7 +55,9 @@ namespace NHM.DeviceMonitoring.NVIDIA
         [DllImport(dll, CallingConvention = CallingConvention.StdCall)]
         public static extern int nhm_nvidia_device_get_oc_limits_delta(int bus_number, ref int delta_core_min, ref int delta_core_max, ref int delta_mem_min, ref int delta_mem_max);
         [DllImport(dll, CallingConvention = CallingConvention.StdCall)]
-        public static extern int nhm_nvidia_device_set_profile(int bus_id, int dmc, int dcc, int mmc, int mcc, string mt);
+        public static extern int nhm_nvidia_device_set_memory_timings(int bus_number, string memory_timings);
+        [DllImport(dll, CallingConvention = CallingConvention.StdCall)]
+        public static extern int nhm_nvidia_device_reset_memory_timings(int bus_number);
         //Excavator no longer has these functions (or they have been moved)
         //[DllImport(dll, CallingConvention = CallingConvention.StdCall)]
         //public static extern int nhm_amd_device_set_memory_clocks(int bus_number, int memory_clocks);
