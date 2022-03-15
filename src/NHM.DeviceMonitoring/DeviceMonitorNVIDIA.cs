@@ -276,7 +276,7 @@ namespace NHM.DeviceMonitoring
                 if (okSetMT >= 0) toRevert.Add(() => NVIDIA_MON.nhm_nvidia_device_reset_memory_timings(BusID));
                 else failed = true;
             }
-            if (toRevert.Any() || failed)
+            if (failed)
             {
                 Parallel.Invoke(toRevert.ToArray());
                 return false;
