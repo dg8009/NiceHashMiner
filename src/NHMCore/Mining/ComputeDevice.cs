@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text.RegularExpressions;
+using static NHMCore.Utils.GPUProfileManager;
 
 namespace NHMCore.Mining
 {
@@ -506,23 +507,41 @@ namespace NHMCore.Mining
 
         #endregion Checker
 
+        public string BuildMTString(OP prof)
+        {
+            var mtString = "";
+            if (prof.mt != null)
+                prof.mt.ForEach(mtOpt =>
+                {
+                    if (mtOpt.Count == 2) mtString += mtOpt[0] + "=" + mtOpt[1] + " ";
+                });
+            mtString.Trim();
+            mtString = mtString.Replace(" ", ";");
+            return mtString;
+        }
+
         public bool TrySetProfile(int profileNum)//todo other values not only mt
         {
             if (!ExistingProfiles.Contains(profileNum)) return false;
             var editedGPUName = Regex.Replace(Name, @"[0-9]+GB", "").Trim();
             if(GPUProfileManager.GetProfileForSelectedGPUIfExists(editedGPUName, profileNum, out var prof) && DeviceMonitor is IMiningProfile mp)
             {
-                var mtString = "";
-                if (prof.mt != null) 
-                    prof.mt.ForEach(mtOpt =>
-                    {
-                        if (mtOpt.Count == 2) mtString += mtOpt[0] + "=" + mtOpt[1] + " ";
-                    });
-                mtString.Trim();
-                mtString = mtString.Replace(" ", ";");
-                return mp.SetMiningProfile(prof.dmc, prof.dcc, prof.mmc, prof.mcc, mtString);
+                var memoryTimings = BuildMTString(prof);
+                return mp.SetMiningProfile(prof.dmc, prof.dcc, prof.mmc, prof.mcc, memoryTimings);
             }
             return false;
+        }
+
+        public int TrySetMemoryTimings(int profileNum)
+        {
+            if (!ExistingProfiles.Contains(profileNum)) return -1;
+            var editedGPUName = Regex.Replace(Name, @"[0-9]+GB", "").Trim();
+            if (GPUProfileManager.GetProfileForSelectedGPUIfExists(editedGPUName, profileNum, out var prof) && DeviceMonitor is IMemoryTimings mp)
+            {
+                var memoryTimings = BuildMTString(prof);
+                return mp.SetMemoryTimings(memoryTimings);
+            }
+            return -1;
         }
     }
 }

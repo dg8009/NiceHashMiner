@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace NHM.DeviceMonitoring
 {
-    internal class DeviceMonitorAMD : DeviceMonitor, IFanSpeedRPM, IGetFanSpeedPercentage, ILoad, IPowerUsage, ITemp, ITDP, IMiningProfile
+    internal class DeviceMonitorAMD : DeviceMonitor, IFanSpeedRPM, IGetFanSpeedPercentage, ILoad, IPowerUsage, ITemp, ITDP, IMemoryTimings, IMiningProfile
     {
         public int BusID { get; private set; }
 
@@ -245,6 +245,16 @@ namespace NHM.DeviceMonitoring
                 return false;
             }
             return true;
+        }
+
+        public int SetMemoryTimings(string mt)
+        {
+            return AMD_ODN.nhm_nvidia_device_set_memory_timings(BusID, mt);
+        }
+
+        public int ResetMemoryTimings()
+        {
+            return AMD_ODN.nhm_nvidia_device_reset_memory_timings(BusID);
         }
     }
 }

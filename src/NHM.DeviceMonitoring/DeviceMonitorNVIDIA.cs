@@ -10,7 +10,7 @@ using static NHM.DeviceMonitoring.NVIDIA.NVIDIA_MON;
 
 namespace NHM.DeviceMonitoring
 {
-    internal class DeviceMonitorNVIDIA : DeviceMonitor, IFanSpeedRPM, IGetFanSpeedPercentage, ILoad, IPowerUsage, ITemp, ITDP, IMiningProfile
+    internal class DeviceMonitorNVIDIA : DeviceMonitor, IFanSpeedRPM, IGetFanSpeedPercentage, ILoad, IPowerUsage, ITemp, ITDP, IMemoryTimings, IMiningProfile
     {
         public static object _lock = new object();
 
@@ -282,6 +282,16 @@ namespace NHM.DeviceMonitoring
                 return false;
             }
             return true;
+        }
+
+        public int SetMemoryTimings(string mt)
+        {
+            return NVIDIA_MON.nhm_nvidia_device_set_memory_timings(BusID, mt);
+        }
+
+        public int ResetMemoryTimings()
+        {
+            return NVIDIA_MON.nhm_nvidia_device_reset_memory_timings(BusID);
         }
     }
 }
