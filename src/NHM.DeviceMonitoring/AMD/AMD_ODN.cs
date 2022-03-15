@@ -53,9 +53,9 @@ namespace NHM.DeviceMonitoring.AMD
         [DllImport(dll, CallingConvention = CallingConvention.StdCall)]
         public static extern int nhm_amd_device_set_memory_clocks(int bus_number, int memory_clocks);
         [DllImport(dll, CallingConvention = CallingConvention.StdCall)]
-        public static extern int nhm_nvidia_device_set_memory_timings(int bus_number, string memory_timings);
+        public static extern int nhm_amd_device_set_memory_timings(int bus_number, string memory_timings);
         [DllImport(dll, CallingConvention = CallingConvention.StdCall)]
-        public static extern int nhm_nvidia_device_reset_memory_timings(int bus_number);
+        public static extern int nhm_amd_device_reset_memory_timings(int bus_number);
 
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]

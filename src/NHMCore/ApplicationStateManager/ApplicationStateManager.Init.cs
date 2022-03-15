@@ -284,6 +284,13 @@ namespace NHMCore
             }
             finally
             {
+                foreach(var item in AvailableDevices.Devices)
+                {
+                    if(item.DeviceType == DeviceType.AMD)
+                    {
+                        item.TrySetMemoryTimings(1);
+                    }
+                }
                 isInitFinished = true;
                 NHWebSocket.NotifyStateChanged();
 

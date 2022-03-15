@@ -513,10 +513,9 @@ namespace NHMCore.Mining
             if (prof.mt != null)
                 prof.mt.ForEach(mtOpt =>
                 {
-                    if (mtOpt.Count == 2) mtString += mtOpt[0] + "=" + mtOpt[1] + " ";
+                    if (mtOpt.Count == 2) mtString += mtOpt[0] + "=" + mtOpt[1] + ";";
                 });
-            mtString.Trim();
-            mtString = mtString.Replace(" ", ";");
+            mtString = mtString.Trim(';');
             return mtString;
         }
 

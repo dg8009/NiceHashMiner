@@ -235,8 +235,8 @@ namespace NHM.DeviceMonitoring
             }
             if (mt.Any() && !failed)
             {
-                var okSetMT = AMD_ODN.nhm_nvidia_device_set_memory_timings(BusID, mt);
-                if (okSetMT >= 0) toRevert.Add(() => AMD_ODN.nhm_nvidia_device_reset_memory_timings(BusID));
+                var okSetMT = AMD_ODN.nhm_amd_device_set_memory_timings(BusID, mt);
+                if (okSetMT >= 0) toRevert.Add(() => AMD_ODN.nhm_amd_device_reset_memory_timings(BusID));
                 else failed = true;
             }
             if (failed)
@@ -249,12 +249,12 @@ namespace NHM.DeviceMonitoring
 
         public int SetMemoryTimings(string mt)
         {
-            return AMD_ODN.nhm_nvidia_device_set_memory_timings(BusID, mt);
+            return AMD_ODN.nhm_amd_device_set_memory_timings(BusID, mt);
         }
 
         public int ResetMemoryTimings()
         {
-            return AMD_ODN.nhm_nvidia_device_reset_memory_timings(BusID);
+            return AMD_ODN.nhm_amd_device_reset_memory_timings(BusID);
         }
     }
 }
