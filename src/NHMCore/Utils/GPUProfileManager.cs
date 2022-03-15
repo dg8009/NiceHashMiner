@@ -52,7 +52,8 @@ namespace NHMCore.Utils
             {
                 var devs = ProfileData.devices
                     .Where(dev => dev.name != null)
-                    .Where(dev => gpuName.Contains(dev.name))
+                    .Where(dev => (gpuName.Contains(dev.name) 
+                    || dev.name.Contains(gpuName)))
                     .FirstOrDefault();
                 if (devs == null || devs.op == null) return false;
                 var profiles = devs.op

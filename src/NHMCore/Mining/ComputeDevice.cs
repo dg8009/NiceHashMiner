@@ -12,6 +12,7 @@ using NHMCore.Utils;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace NHMCore.Mining
 {
@@ -508,7 +509,8 @@ namespace NHMCore.Mining
         public bool TrySetProfile(int profileNum)//todo other values not only mt
         {
             if (!ExistingProfiles.Contains(profileNum)) return false;
-            if(GPUProfileManager.GetProfileForSelectedGPUIfExists(Name, profileNum, out var prof) && DeviceMonitor is IMiningProfile mp)
+            var editedGPUName = Regex.Replace(Name, @"[0-9]+GB", "").Trim();
+            if(GPUProfileManager.GetProfileForSelectedGPUIfExists(editedGPUName, profileNum, out var prof) && DeviceMonitor is IMiningProfile mp)
             {
                 var mtString = "";
                 if (prof.mt != null) 
